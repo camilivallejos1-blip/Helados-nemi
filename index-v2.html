@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Heladería Nemi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family: system-ui, -apple-system;
+    background: linear-gradient(#fff5f7,#fdebed);
+    color:#4b2e2e;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:15px;
+}
+
+/* LOGO */
+.logo{
+    text-align:center;
+}
+.logo img{
+    width:140px;
+}
+
+/* HEADER */
+.header{
+    text-align:center;
+    margin:10px 0 20px;
+}
+.titulo{
+    font-size:26px;
+    font-weight:700;
+}
+.badge{
+    display:inline-block;
+    background:#ffd6dc;
+    padding:6px 12px;
+    border-radius:999px;
+    margin-top:8px;
+    font-size:13px;
+}
+
+/* BOX */
+.box{
+    background:white;
+    padding:15px;
+    border-radius:16px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.05);
+    margin-bottom:15px;
+}
+
+/* POTES */
+.opciones{
+    display:flex;
+    gap:10px;
+}
+.opcion{
+    flex:1;
+    border:2px solid #f3c3c8;
+    border-radius:12px;
+    padding:12px;
+    text-align:center;
+    cursor:pointer;
+}
+.opcion.active{
+    background:#f8c9d0;
+}
+
+/* SABORES */
+.sabores{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+}
+.sabores label{
+    border:1px solid #eee;
+    padding:8px;
+    border-radius:10px;
+    font-size:13px;
+}
+
+/* CONTADOR */
+.contador{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
+.btn{
+    background:#f19aa3;
+    border:none;
+    color:white;
+    padding:8px 14px;
+    border-radius:10px;
+    font-size:18px;
+}
+
+/* TOTAL */
+.total{
+    font-size:24px;
+    font-weight:bold;
+}
+
+/* BOTON PRINCIPAL */
+.finalizar{
+    width:100%;
+    background:linear-gradient(90deg,#f19aa3,#e57c8a);
+    border:none;
+    padding:15px;
+    color:white;
+    border-radius:14px;
+    font-size:16px;
+    margin-top:10px;
+}
+
+/* BOTON FLOTANTE */
+.wpp{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#25D366;
+    color:white;
+    padding:15px;
+    border-radius:50%;
+    font-size:20px;
+    text-decoration:none;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.footer{
+    text-align:center;
+    margin-top:10px;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">
+<img src="logo.png">
+</div>
+
+<div class="header">
+<div class="titulo">Pedí tu helado 🍨</div>
+<div class="badge">🚚 Envío gratis</div>
+</div>
+
+<div class="box">
+<h3>Elegí tu pote</h3>
+<div class="opciones">
+<div class="opcion" onclick="poteSel(5500,2,this)">1/4<br>$5500</div>
+<div class="opcion" onclick="poteSel(8000,3,this)">1/2<br>$8000</div>
+<div class="opcion" onclick="poteSel(14000,4,this)">1kg<br>$14000</div>
+</div>
+</div>
+
+<div class="box">
+<h3>Sabores (<span id="cont">0</span>)</h3>
+<div class="sabores" id="sabores"></div>
+</div>
+
+<div class="box">
+<h3>Cantidad</h3>
+<div class="contador">
+<button class="btn" onclick="cant(-1)">-</button>
+<span id="cant">1</span>
+<button class="btn" onclick="cant(1)">+</button>
+</div>
+</div>
+
+<div class="box">
+<h3>Tu pedido</h3>
+<div id="pedido">No seleccionaste nada</div>
+
+<p>Total: $<span id="total">0</span></p>
+
+<button class="finalizar" onclick="wp()">FINALIZAR PEDIDO</button>
+</div>
+
+<div class="footer">
+📞 1139344495
+</div>
+
+</div>
+
+<a class="wpp" href="https://wa.me/5491139344495">💬</a>
+
+<script>
+let precio=0, max=0, cantidad=1, sabores=[];
+
+const lista=["Chocolate","Vainilla","Frutilla","Dulce de leche","Oreo","Kinder","Menta","Limón","Tramontana","Granizado"];
+
+const contenedor=document.getElementById("sabores");
+
+lista.forEach(s=>{
+ let l=document.createElement("label");
+ l.innerHTML=`<input type="checkbox" value="${s}"> ${s}`;
+ contenedor.appendChild(l);
+});
+
+contenedor.addEventListener("change",e=>{
+ let c=document.querySelectorAll("#sabores input:checked");
+
+ if(c.length>max){
+   e.target.checked=false;
+   return;
+ }
+
+ sabores=[...c].map(x=>x.value);
+ document.getElementById("cont").innerText=sabores.length;
+ actualizar();
+});
+
+function poteSel(p,m,el){
+ precio=p; max=m;
+
+ document.querySelectorAll(".opcion").forEach(o=>o.classList.remove("active"));
+ el.classList.add("active");
+
+ sabores=[];
+ document.querySelectorAll("#sabores input").forEach(c=>c.checked=false);
+ document.getElementById("cont").innerText=0;
+
+ actualizar();
+}
+
+function cant(v){
+ cantidad+=v;
+ if(cantidad<1) cantidad=1;
+ document.getElementById("cant").innerText=cantidad;
+ actualizar();
+}
+
+function actualizar(){
+ let total=precio*cantidad;
+ document.getElementById("total").innerText=total;
+
+ document.getElementById("pedido").innerHTML=
+ sabores.length
+ ? `${cantidad} pote(s)<br>${sabores.join(", ")}`
+ : "No seleccionaste nada";
+}
+
+function wp(){
+ let msg=`Hola! Quiero pedir:
+Potes: ${cantidad}
+Sabores: ${sabores.join(", ")}
+Total: $${precio*cantidad}`;
+
+ window.open("https://wa.me/5491139344495?text="+encodeURIComponent(msg));
+}
+</script>
+
+</body>
+</html>
